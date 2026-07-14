@@ -1,4 +1,5 @@
 # C5500XK Bluetooth LE research
+> tl;dr: some Quantum Fiber (previously CenturyLink, now AT&T)  SmartNID units expose a BLE diagnostic surface that can be used for monitoring and reset without proper authentication. This can be done remotely without any info about the ONT. 
 
 > [!NOTE] > **How this was accomplished:** firmware `CKX002-02.01.19.00` was extracted,
 > the C5500XK platform manager and BLE daemon were mapped statically, the live
