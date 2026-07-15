@@ -39,17 +39,16 @@ configuration, and device credentials are not included.
 
 ## Home Assistant integration
 
-This repository is also a HACS-compatible custom integration. It connects
-through Home Assistant's Bluetooth manager, including connectable ESPHome
-Bluetooth proxies. It does not require the Home Assistant host to have a local
-Bluetooth adapter, and it does not use MQTT or a separate Pi collector.
+This repository is also a HACS-compatible custom integration backed by a
+standalone direct-BlueZ collector. The collector runs on a Linux host with a
+physical Bluetooth adapter; Home Assistant polls its token-authenticated local
+HTTP API. Home Assistant Bluetooth and ESPHome Bluetooth proxies are not used.
 
 The integration:
 
-- discovers connectable `C5500XK` advertisements;
+- scans for the configured `C5500XK` with BlueZ on the collector host;
 - reconstructs the current token from the unaggregated raw advertisement;
-- requests encrypted BLE pairing through the selected Home Assistant adapter
-  or ESPHome proxy;
+- requests encrypted BLE pairing directly from the collector host;
 - performs the verified application-authentication write;
 - reads WAN, PON, optical-level, counter, error, discard, and ping-result data;
   and
@@ -60,19 +59,19 @@ The integration:
 1. In HACS, open **Integrations**, choose **Custom repositories**, and add
    `https://github.com/lrehmann/c5500xk-ble-research` as an **Integration**.
 2. Install **Quantum Fiber ONT Bluetooth** and restart Home Assistant.
-3. Open **Settings → Devices & services → Add integration**, search for
-   **Quantum Fiber ONT Bluetooth**, and select a discovered C5500XK.
-
-For an ESPHome proxy, `bluetooth_proxy` must be configured for active
-connections. Current ESPHome versions enable active proxy connections by
-default. The live Home Assistant validation for this project used only built-in
-ESPHome Bluetooth proxies.
+3. Install and configure the direct-Bluetooth collector on a nearby Linux host
+   using [`collector/config.example.json`](collector/config.example.json) and
+   [`collector/c5500xk-collector.service`](collector/c5500xk-collector.service).
+4. Open **Settings → Devices & services → Add integration**, search for
+   **Quantum Fiber ONT Bluetooth**, and enter the collector host, API token, and
+   ONT identifiers.
 
 ### Safety boundary
 
 Monitoring is enabled when the integration is added. Operational writes are
-not: the integration option **Enable operational write actions** defaults to
-off, and every write button defaults to disabled in the entity registry.
+not: `allow_writes` defaults to `false` in the collector, the integration option
+**Enable operational write actions** defaults to off, and every write button
+defaults to disabled in the entity registry.
 
 The shipped buttons are based on exact firmware mappings and encodings:
 

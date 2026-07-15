@@ -1,15 +1,9 @@
 {
   "domain": "c5500xk",
   "name": "Quantum Fiber ONT Bluetooth",
-  "bluetooth": [
-    {
-      "local_name": "C5500XK*",
-      "connectable": true
-    }
-  ],
   "codeowners": ["@lrehmann"],
   "config_flow": true,
-  "dependencies": ["bluetooth"],
+  "dependencies": [],
   "documentation": "https://github.com/lrehmann/c5500xk-ble-research",
   "integration_type": "device",
   "iot_class": "local_polling",

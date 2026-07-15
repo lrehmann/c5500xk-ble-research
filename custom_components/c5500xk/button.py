@@ -11,10 +11,8 @@ from .const import (
     CONF_PING_REPETITIONS,
     CONF_PING_SIZE,
     DOMAIN,
-    WRITE_UUIDS,
 )
 from .entity import C5500XKEntity
-from .protocol import encode_bool, encode_u32
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -54,16 +52,12 @@ class C5500XKButton(C5500XKEntity, ButtonEntity):
             raise HomeAssistantError("Write actions are disabled in integration options")
         if self.entity_key == "run_ping":
             options = self.entry.options
-            writes = [
-                (WRITE_UUIDS["ping_host"], options.get(CONF_PING_HOST, "1.1.1.1").encode()),
-                (WRITE_UUIDS["ping_size"], encode_u32(options.get(CONF_PING_SIZE, 56))),
-                (
-                    WRITE_UUIDS["ping_repetitions"],
-                    encode_u32(options.get(CONF_PING_REPETITIONS, 4)),
-                ),
-                (WRITE_UUIDS["ping_state"], b"Requested"),
-            ]
+            parameters = {
+                "host": options.get(CONF_PING_HOST, "1.1.1.1"),
+                "size": options.get(CONF_PING_SIZE, 56),
+                "repetitions": options.get(CONF_PING_REPETITIONS, 4),
+            }
         else:
-            writes = [(WRITE_UUIDS[self.entity_key], encode_bool())]
-        await self.coordinator.async_write(writes)
+            parameters = {}
+        await self.coordinator.async_action(self.entity_key, parameters)
         await self.coordinator.async_request_refresh()
