@@ -1,5 +1,6 @@
 """Unit tests for the standalone BlueZ collector's pure logic."""
 
+import asyncio
 import importlib.util
 import sys
 from pathlib import Path
@@ -39,6 +40,8 @@ def test_writes_are_disabled_in_sample_config() -> None:
         Path(__file__).parents[1] / "collector" / "config.example.json"
     )
     assert config.allow_writes is False
+    assert config.retry_interval == 2
+    assert collector.Collector(config).snapshot()["collector"]["writes_allowed"] is False
 
 
 def test_ping_write_encoding() -> None:
@@ -55,3 +58,35 @@ def test_ping_write_encoding() -> None:
     assert writes[1][1] == b"\x38\x00\x00\x00"
     assert writes[2][1] == b"\x04\x00\x00\x00"
     assert writes[3][1] == b"Requested"
+
+
+def test_failed_scan_uses_short_retry_interval() -> None:
+    config = collector.Config(
+        address="00:11:22:33:44:55",
+        serial="C5500XK0000000000",
+        api_token="test",
+        poll_interval=300,
+        retry_interval=2,
+    )
+    instance = collector.Collector(config)
+    delays = []
+
+    async def failed_refresh() -> None:
+        raise RuntimeError("no advertisement")
+
+    async def capture_delay(delay: int) -> None:
+        delays.append(delay)
+        raise StopAsyncIteration
+
+    instance.refresh = failed_refresh
+    instance._sleep = capture_delay
+
+    async def run_once() -> None:
+        try:
+            await instance.poll_forever()
+        except StopAsyncIteration:
+            return
+        raise AssertionError("collector loop did not stop after captured delay")
+
+    asyncio.run(run_once())
+    assert delays == [2]

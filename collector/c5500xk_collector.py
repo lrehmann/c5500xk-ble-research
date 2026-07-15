@@ -22,7 +22,7 @@ from typing import Any
 
 from bleak import BleakClient, BleakScanner
 
-VERSION = "0.1.0"
+VERSION = "0.1.1"
 AUTH_PREFIX = b"J6rV^ntpNGFpk^ruk7FXhPKh5ak@3A6P"
 AUTH_UUID = "b5ef5c81-e7ec-412d-8d3b-a22bfd5f0bf1"
 SERIAL_RE = re.compile(r"^C5500XK\d+$")
@@ -121,6 +121,7 @@ class Config:
     listen_port: int = 8755
     poll_interval: int = 300
     scan_timeout: int = 30
+    retry_interval: int = 2
     allow_writes: bool = False
 
     @classmethod
@@ -179,11 +180,16 @@ class Collector:
 
     async def poll_forever(self) -> None:
         while True:
+            delay = self.config.poll_interval
             try:
                 await self.refresh()
             except Exception as err:
                 logging.warning("Bluetooth refresh did not complete: %s", err)
-            await asyncio.sleep(self.config.poll_interval)
+                delay = self.config.retry_interval
+            await self._sleep(delay)
+
+    async def _sleep(self, delay: int) -> None:
+        await asyncio.sleep(delay)
 
     async def refresh(self) -> None:
         async with self._operation_lock:

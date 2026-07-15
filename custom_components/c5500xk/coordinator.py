@@ -66,6 +66,7 @@ class C5500XKCoordinator(DataUpdateCoordinator[dict]):
             last_success=_parse_datetime(collector.get("last_success")),
             last_error=collector.get("last_error"),
             authenticated=bool(collector.get("authenticated")),
+            writes_allowed=bool(collector.get("writes_allowed")),
         )
         return data
 
