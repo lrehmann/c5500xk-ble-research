@@ -3,6 +3,10 @@
 This map combines live GATT enumeration with names recovered from the tested
 C5500XK firmware's BLE daemon string table and TR-181 mapping.
 
+It is a C5500XK map. None of these proprietary UUIDs or handles has been
+verified on a C6500XK; see
+[`c6500xk-compatibility.md`](c6500xk-compatibility.md).
+
 Rights use `R` for read, `WNR` for write without response, `N` for notify, and
 `B` for broadcast.
 

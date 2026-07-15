@@ -4,6 +4,10 @@ This document records the authentication construction verified in firmware
 `CKX002-02.01.19.00` and against one live C5500XK. Device-specific values are
 redacted.
 
+This construction has not been verified on a C6500XK. See
+[`c6500xk-compatibility.md`](c6500xk-compatibility.md) for the separate evidence
+and validation boundary.
+
 ## Advertisement token
 
 `axon_platform_manager` function `0x00c8daf4` constructs an eight-byte public

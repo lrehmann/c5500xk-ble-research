@@ -20,9 +20,15 @@ This repository documents the proprietary Bluetooth LE interface exposed by a
 Gemtek C5500XK optical network terminal (ONT). All device-specific identifiers
 have been removed.
 
+It also contains a strictly labeled
+[C6500XK compatibility assessment](docs/c6500xk-compatibility.md). Public
+primary sources confirm Bluetooth LE hardware in that related Gemtek SmartNID,
+but no C6500XK device or firmware was available for protocol validation. The
+C5500XK findings below must not be read as verified C6500XK findings.
+
 For monitoring through Home Assistant Bluetooth and connectable ESPHome
 proxies, see the separate
-[Quantum Fiber C5500XK Home Assistant integration](https://github.com/lrehmann/c5500xk-home-assistant).
+[Quantum Fiber SmartNID Home Assistant integration](https://github.com/lrehmann/c5500xk-home-assistant).
 
 ## Scope and tested version
 
