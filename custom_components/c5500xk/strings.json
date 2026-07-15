@@ -1,21 +1,23 @@
 {
   "config": {
+    "abort": {
+      "not_supported": "This Bluetooth device is not a verified supported model."
+    },
     "error": {
-      "cannot_connect": "Could not authenticate to the direct-Bluetooth collector.",
-      "device_mismatch": "The collector is configured for a different ONT.",
       "invalid_address": "Enter a Bluetooth address in XX:XX:XX:XX:XX:XX form.",
       "invalid_serial": "Enter the full C5500XK serial advertised by the ONT."
     },
     "step": {
+      "confirm": {
+        "description": "Add the discovered Quantum Fiber C5500XK? Connections use Home Assistant Bluetooth, including connectable ESPHome proxies. Operational write controls remain disabled by default.",
+        "title": "Quantum Fiber C5500XK"
+      },
       "user": {
         "data": {
           "address": "ONT Bluetooth address",
-          "api_token": "Collector API token",
-          "host": "Direct-Bluetooth collector host",
-          "port": "Collector API port",
-          "serial": "ONT serial"
+          "serial": "ONT advertised serial"
         },
-        "description": "Connect to the standalone collector that has the physical Bluetooth adapter. Home Assistant Bluetooth and ESPHome proxies are not used.",
+        "description": "Enter the ONT identity if its short Bluetooth advertising window is currently closed. A connectable Home Assistant Bluetooth proxy must see a fresh advertisement before monitoring can connect.",
         "title": "Quantum Fiber C5500XK"
       }
     }
@@ -29,7 +31,7 @@
           "ping_repetitions": "Ping repetitions",
           "ping_size": "Ping payload size"
         },
-        "description": "The collector must also allow writes. Buttons remain disabled entities until enabled individually; enabling this option does not execute a command.",
+        "description": "Write buttons are disabled entities and unavailable unless explicitly enabled here. Enabling does not press them.",
         "title": "C5500XK options"
       }
     }

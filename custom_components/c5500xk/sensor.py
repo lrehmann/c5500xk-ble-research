@@ -127,9 +127,7 @@ DESCRIPTIONS = (
         device_class=SensorDeviceClass.SIGNAL_STRENGTH,
         state_class=SensorStateClass.MEASUREMENT,
     ),
-    C5500XKSensorDescription(key="collector", name="Collector state"),
-    C5500XKSensorDescription(key="adapter", name="Bluetooth adapter"),
-    C5500XKSensorDescription(key="last_error", name="Last collector error"),
+    C5500XKSensorDescription(key="proxy", name="Bluetooth proxy"),
     C5500XKSensorDescription(
         key="last_success", name="Last successful update", device_class=SensorDeviceClass.TIMESTAMP
     ),

@@ -11,4 +11,3 @@ select = ["E", "F", "I", "UP"]
 
 [tool.ruff.lint.per-file-ignores]
 "tests/test_protocol.py" = ["E402"]
-"tests/test_collector.py" = ["E402"]

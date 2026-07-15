@@ -2,80 +2,62 @@
 
 ## Architecture
 
-The HACS integration does not use Home Assistant Bluetooth or ESPHome
-Bluetooth proxies. Bluetooth scanning, encrypted pairing, application
-authentication, GATT reads, and any explicitly requested GATT write all happen
-on the standalone Linux collector through its physical BlueZ adapter.
+The HACS integration uses Home Assistant's Bluetooth manager. Connections are
+served by a connectable ESPHome Bluetooth proxy that reports the current
+C5500XK advertisement. The Home Assistant container does not need a local
+Bluetooth adapter, and no separate Raspberry Pi collector is used.
 
-Home Assistant communicates with that collector through a local HTTP API. Every
-status and action request requires a bearer token. The API is plain HTTP and is
-intended only for a trusted LAN; it must not be exposed to the Internet.
+The advertisement callback retains the packet's raw AD structures because Home
+Assistant's aggregated `manufacturer_data` can contain tokens from older
+advertisements. The current token is taken only from AD type `0xff` in the raw
+packet and must be eight bytes ending in `01`.
 
-Each collector poll performs this sequence:
+Each connection attempt performs this sequence:
 
-1. wait for a current advertisement from the configured address or serial;
-2. reconstruct the eight-byte token from BlueZ manufacturer data;
-3. connect and request encrypted pairing directly through BlueZ;
+1. receive a fresh connectable advertisement through Home Assistant;
+2. bind to the exact proxy-backed `BLEDevice` that reported the packet;
+3. request encrypted pairing, reusing an existing bond and service cache;
 4. immediately write the 64-byte application-authentication value;
-5. read protected WAN and PON characteristics; and
-6. disconnect.
+5. read protected PON status and receive-optical power first;
+6. read the remaining WAN, PON, counter, and diagnostic values; and
+7. disconnect.
 
 A poll is successful only if protected PON status and receive-optical values are
-returned. A completed link or authentication write alone is not treated as a
-successful monitoring update. The collector keeps the last successful data
-available while reporting the current scan/error state separately.
+returned. A completed connection or authentication write alone is not treated
+as successful monitoring.
 
-After a missed scan, the collector re-arms BlueZ after `retry_interval` seconds
-instead of waiting for the normal telemetry `poll_interval`. With the shipped
-30-second scan and 2-second retry settings, the dedicated adapter is listening
-for the configured ONT nearly continuously until it captures an advertising
-window. After a successful protected read, it returns to the normal five-minute
-poll interval.
+## Short advertising window
 
-## Collector installation
+Initial pairing and GATT discovery can consume most of the ONT's short
+authentication window. The integration therefore makes one connection attempt
+per fresh advertisement instead of retrying the same token. Later packets
+automatically trigger another attempt, and the established Bluetooth bond plus
+service cache can make those later connections faster.
 
-The collector requires Linux, BlueZ, Python 3.11 or newer, and a physical
-Bluetooth adapter that can hear the ONT.
-
-1. Copy `collector/c5500xk_collector.py` to
-   `/opt/c5500xk-collector/c5500xk_collector.py`.
-2. Create a virtual environment in `/opt/c5500xk-collector/venv` and install
-   `bleak`.
-3. Copy `collector/config.example.json` to
-   `/etc/c5500xk-collector/config.json`, replace its placeholders, and restrict
-   the file to root.
-4. Copy `collector/c5500xk-collector.service` into `/etc/systemd/system/`, then
-   enable and start it.
-
-`allow_writes` is `false` in the example and should remain false for monitoring.
-The unauthenticated `/health` route reveals only collector health and version.
-`/v1/status` and all `/v1/actions/*` routes require the configured API token.
+Scheduled five-minute refreshes remain as a fallback. Advertisement-triggered
+refreshes are the primary path while the ONT is in its physical Bluetooth
+window.
 
 ## Entities
 
 The default monitoring surface includes:
 
 - application-authentication connectivity;
-- collector operational-write lock state;
 - WAN and PON state;
 - receive/transmit optical power and firmware thresholds;
 - WAN uptime and PON state age;
 - IPv4 packet counters;
 - PON byte, BIP-error, packet-error, and discard counters;
 - ping state and result counters/timings;
-- direct Bluetooth RSSI, collector state, and adapter;
-- the last collector error; and
-- the last successful protected read.
+- Bluetooth RSSI and serving proxy; and
+- last successful protected read.
 
 ## Operational writes
 
-Operational writes have three independent gates:
-
-1. `allow_writes` must be explicitly changed to `true` in the collector config;
-2. **Enable operational write actions** must be enabled in integration options;
-3. each button entity must be manually enabled in Home Assistant.
-
-Installing or configuring either component cannot invoke an operation.
+All write entities are disabled in the entity registry by default and remain
+unavailable until **Enable operational write actions** is explicitly turned on
+in integration options. A successful authenticated monitoring update is also
+required before the buttons become available.
 
 | Button | Characteristic | Static payload evidence | Live execution |
 | --- | --- | --- | --- |
@@ -97,8 +79,14 @@ not safe one-click controls.
 
 ## Live validation boundary
 
-The collector API and HACS integration can be tested without enabling or
-executing operational writes. A protected data refresh still requires the ONT
-to be in its short-lived Bluetooth advertising window. When it is not
-advertising, the collector reports `waiting_for_advertisement` and retains the
-last successful values, if any.
+The integration was installed into Home Assistant `2026.2.3`. Five connectable
+ESPHome proxies were enumerated, and the tested C5500XK was observed through
+them. The first proxy session completed pairing and sent the required
+application-authentication write, but initial service discovery consumed the
+short timing window and protected values were not returned. No operational
+button was enabled or pressed.
+
+The current implementation adds service-cache reuse, one attempt per current
+token, automatic advertisement-triggered retries, and protected-first reads.
+A protected refresh still requires the ONT to enter its physical Bluetooth
+advertising window.
