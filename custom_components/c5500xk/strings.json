@@ -1,0 +1,37 @@
+{
+  "config": {
+    "error": {
+      "cannot_connect": "Could not authenticate to the direct-Bluetooth collector.",
+      "device_mismatch": "The collector is configured for a different ONT.",
+      "invalid_address": "Enter a Bluetooth address in XX:XX:XX:XX:XX:XX form.",
+      "invalid_serial": "Enter the full C5500XK serial advertised by the ONT."
+    },
+    "step": {
+      "user": {
+        "data": {
+          "address": "ONT Bluetooth address",
+          "api_token": "Collector API token",
+          "host": "Direct-Bluetooth collector host",
+          "port": "Collector API port",
+          "serial": "ONT serial"
+        },
+        "description": "Connect to the standalone collector that has the physical Bluetooth adapter. Home Assistant Bluetooth and ESPHome proxies are not used.",
+        "title": "Quantum Fiber C5500XK"
+      }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "data": {
+          "enable_write_actions": "Enable operational write actions",
+          "ping_host": "Ping host",
+          "ping_repetitions": "Ping repetitions",
+          "ping_size": "Ping payload size"
+        },
+        "description": "The collector must also allow writes. Buttons remain disabled entities until enabled individually; enabling this option does not execute a command.",
+        "title": "C5500XK options"
+      }
+    }
+  }
+}

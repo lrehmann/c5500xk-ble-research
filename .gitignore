@@ -8,3 +8,6 @@ __pycache__/
 *.img
 *.sparseimage
 rootfs-*/
+.pytest_cache/
+.ruff_cache/
+tmp/

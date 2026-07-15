@@ -1,0 +1,12 @@
+{
+  "domain": "c5500xk",
+  "name": "Quantum Fiber ONT Bluetooth",
+  "codeowners": ["@lrehmann"],
+  "config_flow": true,
+  "dependencies": [],
+  "documentation": "https://github.com/lrehmann/c5500xk-ble-research",
+  "integration_type": "device",
+  "iot_class": "local_polling",
+  "issue_tracker": "https://github.com/lrehmann/c5500xk-ble-research/issues",
+  "version": "0.1.0"
+}
