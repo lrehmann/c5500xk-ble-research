@@ -25,6 +25,13 @@ returned. A completed link or authentication write alone is not treated as a
 successful monitoring update. The collector keeps the last successful data
 available while reporting the current scan/error state separately.
 
+After a missed scan, the collector re-arms BlueZ after `retry_interval` seconds
+instead of waiting for the normal telemetry `poll_interval`. With the shipped
+30-second scan and 2-second retry settings, the dedicated adapter is listening
+for the configured ONT nearly continuously until it captures an advertising
+window. After a successful protected read, it returns to the normal five-minute
+poll interval.
+
 ## Collector installation
 
 The collector requires Linux, BlueZ, Python 3.11 or newer, and a physical
@@ -49,6 +56,7 @@ The unauthenticated `/health` route reveals only collector health and version.
 The default monitoring surface includes:
 
 - application-authentication connectivity;
+- collector operational-write lock state;
 - WAN and PON state;
 - receive/transmit optical power and firmware thresholds;
 - WAN uptime and PON state age;

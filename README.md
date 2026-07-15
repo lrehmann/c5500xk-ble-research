@@ -59,6 +59,10 @@ The integration:
   and
 - exposes operational controls only as opt-in, disabled-by-default entities.
 
+While no current advertisement is present, the collector continuously re-arms
+its direct BlueZ scan so it can catch the ONT's short physical advertising
+window. It does not wait for Home Assistant to initiate a scan.
+
 ### Install with HACS
 
 1. In HACS, open **Integrations**, choose **Custom repositories**, and add

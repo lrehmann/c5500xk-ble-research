@@ -43,13 +43,17 @@ class C5500XKButton(C5500XKEntity, ButtonEntity):
 
     @property
     def available(self):
-        return self.coordinator.last_update_success and self.entry.options.get(
-            CONF_ENABLE_WRITES, False
+        return (
+            self.coordinator.last_update_success
+            and self.entry.options.get(CONF_ENABLE_WRITES, False)
+            and self.coordinator.data.get("writes_allowed", False)
         )
 
     async def async_press(self) -> None:
         if not self.entry.options.get(CONF_ENABLE_WRITES, False):
             raise HomeAssistantError("Write actions are disabled in integration options")
+        if not self.coordinator.data.get("writes_allowed", False):
+            raise HomeAssistantError("Write actions are disabled in collector configuration")
         if self.entity_key == "run_ping":
             options = self.entry.options
             parameters = {
