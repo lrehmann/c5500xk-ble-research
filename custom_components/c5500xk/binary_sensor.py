@@ -20,10 +20,6 @@ DESCRIPTIONS = (
         name="Ethernet WAN",
         device_class=BinarySensorDeviceClass.CONNECTIVITY,
     ),
-    BinarySensorEntityDescription(
-        key="writes_allowed",
-        name="Operational writes enabled",
-    ),
 )
 
 
