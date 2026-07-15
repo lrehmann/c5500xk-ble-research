@@ -1,6 +1,9 @@
 # C5500XK Bluetooth LE research
 
-> [!NOTE] > **How this was accomplished:** firmware `CKX002-02.01.19.00` was extracted,
+![Blue optical network terminal](brand/icon.png)
+
+> [!NOTE]
+> **How this was accomplished:** firmware `CKX002-02.01.19.00` was extracted,
 > the C5500XK platform manager and BLE daemon were mapped statically, the live
 > proprietary GATT database was enumerated with BlueZ, and the recovered
 > application-authentication construction was validated against a live unit by
@@ -33,6 +36,56 @@ have been removed.
 
 The firmware image, extracted root filesystem, packet captures, client-host
 configuration, and device credentials are not included.
+
+## Home Assistant integration
+
+This repository is also a HACS-compatible custom integration. It connects
+through Home Assistant's Bluetooth manager, including connectable ESPHome
+Bluetooth proxies. It does not require the Home Assistant host to have a local
+Bluetooth adapter, and it does not use MQTT or a separate Pi collector.
+
+The integration:
+
+- discovers connectable `C5500XK` advertisements;
+- reconstructs the current token from the unaggregated raw advertisement;
+- requests encrypted BLE pairing through the selected Home Assistant adapter
+  or ESPHome proxy;
+- performs the verified application-authentication write;
+- reads WAN, PON, optical-level, counter, error, discard, and ping-result data;
+  and
+- exposes operational controls only as opt-in, disabled-by-default entities.
+
+### Install with HACS
+
+1. In HACS, open **Integrations**, choose **Custom repositories**, and add
+   `https://github.com/lrehmann/c5500xk-ble-research` as an **Integration**.
+2. Install **Quantum Fiber ONT Bluetooth** and restart Home Assistant.
+3. Open **Settings → Devices & services → Add integration**, search for
+   **Quantum Fiber ONT Bluetooth**, and select a discovered C5500XK.
+
+For an ESPHome proxy, `bluetooth_proxy` must be configured for active
+connections. Current ESPHome versions enable active proxy connections by
+default. The live Home Assistant validation for this project used only built-in
+ESPHome Bluetooth proxies.
+
+### Safety boundary
+
+Monitoring is enabled when the integration is added. Operational writes are
+not: the integration option **Enable operational write actions** defaults to
+off, and every write button defaults to disabled in the entity registry.
+
+The shipped buttons are based on exact firmware mappings and encodings:
+
+- reboot: one-byte boolean `01`;
+- factory reset: one-byte boolean `01`;
+- release/renew WAN address: one-byte boolean `01`;
+- reset PPP credentials: one-byte boolean `01`; and
+- ping: ASCII host, little-endian 32-bit payload size and repetition count,
+  followed by ASCII `Requested` in the diagnostic-state characteristic.
+
+None of those operational buttons was pressed during development or live
+validation. See [`docs/home-assistant.md`](docs/home-assistant.md) for the
+entity list, timing behavior, and validation boundary.
 
 ## Verified findings
 
@@ -177,3 +230,6 @@ required application-authentication payload. Reboot, factory reset, WAN lease,
 PPP, ping, upload, and download controls were not invoked. The temporary BLE
 bond was removed after validation, and the client adapter was left disconnected
 and not discovering.
+
+Model evidence and the deliberately conservative discovery policy are recorded
+in [`docs/model-support.md`](docs/model-support.md).

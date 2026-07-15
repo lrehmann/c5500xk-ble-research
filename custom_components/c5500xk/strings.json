@@ -1,0 +1,35 @@
+{
+  "config": {
+    "abort": {
+      "no_devices_found": "No connectable C5500XK is currently visible through Home Assistant Bluetooth.",
+      "not_supported": "This Bluetooth device is not a verified supported model."
+    },
+    "step": {
+      "confirm": {
+        "description": "Add the discovered Quantum Fiber C5500XK? Monitoring uses a Home Assistant Bluetooth adapter or ESPHome Bluetooth proxy. Operational write controls remain disabled by default.",
+        "title": "Quantum Fiber C5500XK"
+      },
+      "user": {
+        "data": {
+          "address": "Discovered C5500XK"
+        },
+        "description": "Select a C5500XK visible through a Home Assistant Bluetooth adapter or ESPHome Bluetooth proxy.",
+        "title": "Quantum Fiber C5500XK"
+      }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "data": {
+          "enable_write_actions": "Enable operational write actions",
+          "ping_host": "Ping host",
+          "ping_repetitions": "Ping repetitions",
+          "ping_size": "Ping payload size"
+        },
+        "description": "Write buttons are disabled entities and unavailable unless explicitly enabled here. Enabling does not press them.",
+        "title": "C5500XK options"
+      }
+    }
+  }
+}
