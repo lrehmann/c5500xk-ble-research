@@ -1,14 +1,7 @@
 # C5500XK Bluetooth LE research
+> tl;dr: some Quantum Fiber (previously CenturyLink, now AT&T)  SmartNID units expose a BLE diagnostic surface that can be used for monitoring and reset without proper authentication. This can be done remotely without any info about the ONT. 
 
-> tl;dr: some Quantum Fiber (previously CenturyLink, now AT&T) SmartNID units
-> expose a BLE diagnostic surface that can be used for monitoring and reset
-> without proper authentication. This can be done remotely without any info
-> about the ONT.
-
-![Blue optical network terminal](brand/icon.png)
-
-> [!NOTE]
-> **How this was accomplished:** firmware `CKX002-02.01.19.00` was extracted,
+> [!NOTE] > **How this was accomplished:** firmware `CKX002-02.01.19.00` was extracted,
 > the C5500XK platform manager and BLE daemon were mapped statically, the live
 > proprietary GATT database was enumerated with BlueZ, and the recovered
 > application-authentication construction was validated against a live unit by
@@ -41,57 +34,6 @@ have been removed.
 
 The firmware image, extracted root filesystem, packet captures, client-host
 configuration, and device credentials are not included.
-
-## Home Assistant integration
-
-This repository is also a HACS-compatible custom integration. It uses Home
-Assistant's Bluetooth manager and connectable ESPHome Bluetooth proxies. It
-does not require or use a separate Raspberry Pi Bluetooth adapter or collector.
-
-The integration:
-
-- receives connectable `C5500XK` advertisements through Home Assistant;
-- reconstructs the current token from the unaggregated raw advertisement;
-- requests encrypted BLE pairing through the proxy that reported the packet;
-- performs the verified application-authentication write;
-- reads WAN, PON, optical-level, counter, error, discard, and ping-result data;
-  and
-- exposes operational controls only as opt-in, disabled-by-default entities.
-
-The integration attempts one connection per fresh advertising opportunity and
-reuses the Bluetooth bond and GATT service cache on later attempts. This avoids
-spending the ONT's short token window on repeated connections with a stale
-advertisement.
-
-### Install with HACS
-
-1. In HACS, open **Integrations**, choose **Custom repositories**, and add
-   `https://github.com/lrehmann/c5500xk-ble-research` as an **Integration**.
-2. Install **Quantum Fiber ONT Bluetooth** and restart Home Assistant.
-3. Ensure at least one ESPHome Bluetooth proxy in range supports active
-   connections.
-4. Open **Settings → Devices & services → Add integration**, search for
-   **Quantum Fiber ONT Bluetooth**, and confirm a discovered unit or enter its
-   Bluetooth address and advertised serial manually.
-
-### Safety boundary
-
-Monitoring is enabled when the integration is added. Operational writes are
-not: the integration option **Enable operational write actions** defaults to
-off, and every write button defaults to disabled in the entity registry.
-
-The shipped buttons are based on exact firmware mappings and encodings:
-
-- reboot: one-byte boolean `01`;
-- factory reset: one-byte boolean `01`;
-- release/renew WAN address: one-byte boolean `01`;
-- reset PPP credentials: one-byte boolean `01`; and
-- ping: ASCII host, little-endian 32-bit payload size and repetition count,
-  followed by ASCII `Requested` in the diagnostic-state characteristic.
-
-None of those operational buttons was pressed during development or live
-validation. See [`docs/home-assistant.md`](docs/home-assistant.md) for the
-entity list, timing behavior, and validation boundary.
 
 ## Verified findings
 
@@ -236,6 +178,3 @@ required application-authentication payload. Reboot, factory reset, WAN lease,
 PPP, ping, upload, and download controls were not invoked. The temporary BLE
 bond was removed after validation, and the client adapter was left disconnected
 and not discovering.
-
-Model evidence and the deliberately conservative discovery policy are recorded
-in [`docs/model-support.md`](docs/model-support.md).
