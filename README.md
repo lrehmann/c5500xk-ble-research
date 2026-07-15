@@ -20,6 +20,10 @@ This repository documents the proprietary Bluetooth LE interface exposed by a
 Gemtek C5500XK optical network terminal (ONT). All device-specific identifiers
 have been removed.
 
+For monitoring through Home Assistant Bluetooth and connectable ESPHome
+proxies, see the separate
+[Quantum Fiber C5500XK Home Assistant integration](https://github.com/lrehmann/c5500xk-home-assistant).
+
 ## Scope and tested version
 
 | Item                                | Verified value                                                     |
